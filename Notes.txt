@@ -1,0 +1,14 @@
+jar, war aur pom teeno alag‑alag “packaging type” hain; inka matlab mainly ye hota hai ki Maven
+build karne par project ka kis type ka output/“artifact” banega:
+
+pom – ye sirf parent / aggregator project hai, jar/war file nahi banega; 
+iska kaam sirf modules, dependencies aur versions manage karna hota hai.
+
+jar – normal Java library ya standalone Java app bana leta hai,
+jise dusre projects dependency ke roop me use kar sakte ho.
+
+war – Java web application (servlet, JSP, REST APIs wale Spring Boot / Tomcat type project) 
+ko deploy‑able web archive file ke roop me banata hai, jise server (Tomcat, etc.) par deploy kiya jata hai.
+
+
+dependencies Management block ->only control dependency version-->do not add dependency(very important).
