@@ -28,8 +28,6 @@ Docker Engine:
   Run time that manage and runs a container.
 
 
-
-
 Docker Components
 Dockerfile
 Instruction to build Docker image
