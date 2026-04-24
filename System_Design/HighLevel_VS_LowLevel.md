@@ -1,90 +1,152 @@
+# URL Shortener System Design (HLD + LLD)
 
+A clean, interview-ready breakdown of **High-Level Design (HLD)** and **Low-Level Design (LLD)** using a scalable **URL Shortener** as the reference system.
 
+---
 
-| Aspect      | HLD (High Level)                      | LLD (Low Level)                                 |
-| ----------- | ------------------------------------- | ----------------------------------------------- |
-| Scope       | Pura system architecture              | Individual modules/classes                      |
-| Abstraction | High (macro level)                    | Low (micro level, code-ready) geeksforgeeks     |
-| Focus       | Components, interactions, scalability | Algorithms, data structures, APIs               |
-| Audience    | Architects/stakeholders               | Developers                                      |
-| Output      | Diagrams, flowcharts                  | Class diagrams, pseudocode systemdesignhandbook |
+## 📌 Overview
 
+* **HLD (High-Level Design)** focuses on system architecture, scalability, and component interactions.
+* **LLD (Low-Level Design)** dives into implementation details like classes, APIs, and database schema.
+* Structured for **quick revision + GitHub README usage**
 
-HLD Components Overview
-Ye common components hain scalable systems mein, jaise URL shortener ke liye:
+---
 
-Load Balancing: Traffic ko multiple servers pe distribute karta hai (Nginx/ALB on AWS).
+## ⚖️ HLD vs LLD Comparison
 
-Cache: Redis/Memcached se hot data (jaise popular short URLs) fast access (clicks >=300 wale).
+| Aspect      | HLD (High Level)                      | LLD (Low Level)                   |
+| ----------- | ------------------------------------- | --------------------------------- |
+| Scope       | Entire system architecture            | Individual modules/classes        |
+| Abstraction | High (macro level)                    | Low (code-level detail)           |
+| Focus       | Components, scalability, interactions | Algorithms, data structures, APIs |
+| Audience    | Architects, stakeholders              | Developers                        |
+| Output      | Diagrams, system flows                | Class diagrams, pseudocode        |
 
-CDN: Static content (images) global edges pe serve karta hai low latency ke liye.
+---
 
-Microservices: Independent services (shorten, redirect, analytics).
+## 🏗️ HLD (High-Level Design)
 
-API Gateway: Single entry point, auth/rate limiting (Kong/AWS API Gateway).
+### 1. Functional Requirements
 
-DB: Relational (MySQL/PostgreSQL) ya NoSQL (DynamoDB) mappings store karne ke liye.
+* **URL Shortening**
 
-Queue: Async tasks jaise analytics (SQS/Kafka).
+  * Input: Long URL
+  * Output: Unique short URL (Base62 encoding)
+  * Store mapping in DB
 
-Storage (AWS S3): Logs, user data long-term store.
+* **Redirection**
 
-HLD of URL Shortener
+  * Short URL → Redirect (HTTP 301) to original URL
 
-1. Functional Requirements
-Long URL → Short URL: User long URL bhejta hai, unique short code generate hokar mapping store karo (e.g., base62 encoding).
+* **Click Tracking**
 
-Redirect: Short URL pe GET request aaye to original long URL pe 301 redirect.
+  * Increment click count on every redirect
 
-Clicks Tracker: Har redirect pe clicks++ karo analytics ke liye.
+---
 
-2. Non-Functional Requirements (DevOps Focus)
-Scalable: 1B URLs/month handle (sharding, replication).
+### 2. Non-Functional Requirements
 
-Low Latency: <50ms redirect (cache-first), high performance.
+* **Scalability**
 
-Available: 99.99% uptime (multi-AZ, load balancers).
+  * Handle ~1B URLs/month
+  * Use sharding + replication
 
-3. High Level Components
-text
-[User] --> Load Balancer (Nginx/ALB) --> API Gateway --> Web Servers (Microservices)
-          |                                           |
-          v                                           v
-       CDN (static assets)                    Cache (Redis) <--> DB (MySQL sharded)
+* **Low Latency**
+
+  * Target <50ms redirect
+  * Cache-first strategy
+
+* **High Availability**
+
+  * 99.99% uptime
+  * Multi-AZ + load balancers
+
+---
+
+### 3. Core Components
+
+* **Load Balancer**
+
+  * Distributes traffic (Nginx / AWS ALB)
+
+* **API Gateway**
+
+  * Auth, rate limiting, routing
+
+* **Microservices**
+
+  * Shorten service
+  * Redirect service
+  * Analytics service
+
+* **Cache**
+
+  * Redis / Memcached
+  * Stores hot URLs (clicks ≥ 300)
+
+* **Database**
+
+  * MySQL / PostgreSQL
+  * Optional: DynamoDB
+
+* **Queue**
+
+  * Kafka / SQS for async tasks
+
+* **CDN**
+
+  * Static content delivery
+
+* **Storage**
+
+  * S3 for logs
+
+---
+
+### 4. System Flow
+
+```text
+[User] --> Load Balancer --> API Gateway --> Web Servers
+           |                                      |
+           v                                      v
+        CDN (static)                        Cache (Redis) <--> DB
                                                     |
                                                     v
-                                               Queue (SQS) --> Analytics Service
-Storage (S3 for logs)
+                                             Queue --> Analytics
 
-Web Server: Shorten/redirect handle.
+Storage (S3)
+```
 
-Hash Generator: Unique short code (base62 on counter).
+---
 
-DB: id | short_link | clicks | actual_link | created_at.
+## ⚙️ LLD (Low-Level Design)
 
-Caching: High-click URLs (300+) cache mein for no DB hits.
+### 1. Class Diagram
 
-LLD of URL Shortener (Detailed Implementation)
-Class Diagram (UML Style)
-text
+```text
 +---------------+       +----------------+       +-----------------+
 |   URLService  |<>---->|   URLMapper    |<>---->|   CacheService  |
 +---------------+       +----------------+       +-----------------+
-| - db: DBConn  |       | - hashGen: Hash|       | - redis: Redis  |
-| - cache: Cache|       +----------------+       +-----------------+
-+---------------+       | + shorten() +  |       | + get()         |
-| + shorten(url)|       |  redirect(code)|       | + set(key,val)  |
-| + redirect(code|      +----------------+       +-----------------+
+| - db          |       | - hashGen      |       | - redis         |
+| - cache       |       +----------------+       +-----------------+
++---------------+       | + shorten()    |       | + get()         |
+| + shorten()   |       | + redirect()   |       | + set()         |
+| + redirect()  |       +----------------+       +-----------------+
 | + trackClick()|       
-+---------------+       +-----------------+
-                       |   HashGenerator  |
-                       +-----------------+
-                       | + generate(len=7)|
-                       +-----------------+
-Key relations: URLService orchestrates, URLMapper DB ops, Cache for reads.
++---------------+
 
-DB Schema
-sql
+                      +-----------------+
+                      | HashGenerator   |
+                      +-----------------+
+                      | + generate(7)   |
+                      +-----------------+
+```
+
+---
+
+### 2. Database Schema
+
+```sql
 CREATE TABLE url_mappings (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     short_link VARCHAR(10) UNIQUE NOT NULL,
@@ -95,27 +157,132 @@ CREATE TABLE url_mappings (
     expires_at TIMESTAMP
 );
 
-INDEX idx_short (short_link);
-INDEX idx_clicks (clicks DESC);  -- For analytics
-Sharding: short_link hash pe.
+CREATE INDEX idx_short ON url_mappings(short_link);
+CREATE INDEX idx_clicks ON url_mappings(clicks DESC);
+```
 
-APIs (REST)
-POST /api/shorten: { "longUrl": "https://example.com/very/long", "userId": "rocky" } → { "shortUrl": "abc123" }
+* **Sharding**: Based on `short_link` hash
 
-GET /:shortCode: Redirect to actual_link, increment clicks.
+---
 
-GET /api/stats/:shortCode: { "clicks": 350, "created": "2026-04-24" }
+### 3. REST APIs
 
-Objects & Relations
-URL Object: class URL { longUrl, shortCode, clicks, createdAt, userId }
+#### ➤ Create Short URL
 
-Relations: One-to-one (short→long), User has many URLs.
+```http
+POST /api/shorten
+```
 
-Hashing: Counter++ → base62 encode (62^7 = 3.5T unique).
+```json
+{
+  "longUrl": "https://example.com/very/long",
+  "userId": "rocky"
+}
+```
 
-Error Handling & Security
-Errors: Invalid URL (400), Duplicate short (409), Expired (410), Rate limit (429).
+```json
+{
+  "shortUrl": "abc123"
+}
+```
 
-Security: Input validation (URL regex), HTTPS only, CAPTCHA for abuse, custom short unique check, SQL injection prevent (prepared stmts).
+---
 
-Edge Cases: Collision (retry generate), High traffic (queue clicks), Analytics async via queue.
+#### ➤ Redirect
+
+```http
+GET /:shortCode
+```
+
+* Redirects to original URL
+* Increments click count
+
+---
+
+#### ➤ Get Stats
+
+```http
+GET /api/stats/:shortCode
+```
+
+```json
+{
+  "clicks": 350,
+  "created": "2026-04-24"
+}
+```
+
+---
+
+### 4. Core Object
+
+```java
+class URL {
+    String longUrl;
+    String shortCode;
+    long clicks;
+    Timestamp createdAt;
+    String userId;
+}
+```
+
+* One-to-one: short ↔ long URL
+* One-to-many: User → URLs
+
+---
+
+### 5. Hashing Strategy
+
+* Counter-based ID generation
+* Convert to Base62
+* Capacity: `62^7 ≈ 3.5 trillion`
+
+---
+
+### 6. Caching Strategy
+
+* Cache hot URLs (clicks ≥ 300)
+* Reduce DB load
+* Lazy loading / write-through
+
+---
+
+### 7. Error Handling & Security
+
+#### Errors
+
+* 400 → Invalid URL
+* 409 → Duplicate short code
+* 410 → Expired link
+* 429 → Rate limit exceeded
+
+#### Security
+
+* URL validation (regex)
+* HTTPS only
+* CAPTCHA (abuse prevention)
+* Prepared statements (SQL injection protection)
+
+---
+
+### 8. Edge Cases
+
+* **Collision** → Retry generation
+* **High Traffic** → Queue click updates
+* **Analytics** → Async processing
+
+---
+
+## ✅ Summary
+
+* **HLD** → System architecture, scalability
+* **LLD** → Code-level implementation
+
+### Key Takeaways
+
+* Cache-first approach for low latency
+* Async processing for scalability
+* Base62 for compact unique IDs
+* Sharding for large-scale systems
+
+---
