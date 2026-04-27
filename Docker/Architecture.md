@@ -50,14 +50,26 @@ docker logs <container_id> --tail 10 (last 10 logs)
 docker exec -it <container_id> sh
 
 Some more important commands
+
 Image commands:-
 1. docker images
 2. docker rmi <container_id> (remove image but not container)
-   docker rmi -f <container_id> (used to force delete image) 
+   docker rmi -f <container_id> (used to force delete image)
+   docker images -q (id of images running)
+   docker rmi $(docker images -q) 
+
 Container Commands:-
 1. docker rm <container_id>   (first need to stop it)
 2. docker rm -f <container_id> (force remove it)
 
+docker container prune (remove all stopped container)
+docker image prune (remove all stopped images)
+docker system prune -a  (clean uppp)
+
+
+docker ps -aq (id of all running containers)
+docker rm $(docker ps -aq)
+docker rm -f $(docker ps -aq)
 
 
 
