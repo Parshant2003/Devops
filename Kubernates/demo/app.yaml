@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: myapp
+        image: nginx
+        # env:
+        # - name: APP_MESSAGE
+        #   value: "Hello I am from app.yaml"
+        # - name: DB_Password
+        #   value: "password123"
+
+        env:
+        - name: APP_MESSAGE
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: APP_MESSAGE
+        - name: DB_Password
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: DB_Password
+        ports:
+        - containerPort: 80
