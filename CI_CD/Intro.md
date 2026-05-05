@@ -5,4 +5,10 @@ CI/CD= steps+ oders + automation
 3. Steps
 4. Runner 
  
+COMMANDS
+- name: Say Hello
+ run: echo "Hello from CI" 
 
+Prebuilt Action
+- name: CheckOut Code
+  uses: action/checkout@v4
