@@ -1,0 +1,23 @@
+name: dependency CI
+
+on:
+    # push
+      workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Hello World
+      run: echo "Hello World from dependency CI"
+      
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - name: test Job
+      run: echo "Hello World from dependency CI - Test Job"
+    
+    
