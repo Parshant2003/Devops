@@ -1,0 +1,20 @@
+name: Context using git hub actions
+
+on: 
+  push:        # Sirf push pe chalega
+    branches: [ main ]
+
+jobs:
+  echo-job:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Say Hello        # Tumhara original example
+      run: echo "Hello from CI"
+      
+    - name: Print Context    # Context use karke info print
+      run: |
+        echo "Branch: ${{ github.ref_name }}"
+        echo "Commit: ${{ github.sha }}"
+        echo "Repo: ${{ github.repository }}"
+        echo "Pushed by: ${{ github.actor }}"
