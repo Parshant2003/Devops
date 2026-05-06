@@ -1,0 +1,45 @@
+name: Hello Spring Boot CI
+
+on:
+     push
+    #   workflow_dispatch:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4 
+
+    - name: Set up jdk
+      uses: actions/setup-java@v5
+      with:
+        distribution: 'temurin' # See 'Supported distributions' for available options
+        java-version: '25'
+        
+        
+    - name: build and test (maven)
+      working-directory: Docker/
+      run: mvn -B clean verify
+    
+    - name: Upload test report
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-report
+        path: Docker/target/surefire-reports/
+
+  docker-build-push:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Docker Build
+      run: echo "Docker Build Step"
+    - name: Docker Build
+      run: echo "Docker Build Step"
+    - name: Docker Build
+      run: echo "Docker Build Step"
+    - name: Docker Build
+      run: echo "Docker Build Step"
+    - name: Docker Build
+      run: echo "Docker Build Step"  

@@ -1,9 +1,8 @@
 name: Context using git hub actions
 
 on: 
-  push:        # Sirf push pe chalega
-    branches: [ main ]
-
+    # push:        # Sirf push pe chalega
+    workflow_dispatch:  # Manual trigger se chalega, Actions tab se run kar sakte ho
 jobs:
   echo-job:
     runs-on: ubuntu-latest
