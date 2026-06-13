@@ -1,8 +1,16 @@
 name: Hello Spring Boot CI
 
 on:
-     push
-    #   workflow_dispatch:
+     workflow_dispatch:
+     push:
+      paths:
+        - 'Docker/**'
+    
+    
+     # branches:
+      #  - main
+    
+  
 
 jobs:
   build-test:

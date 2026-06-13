@@ -4,7 +4,9 @@ CI/CD= steps+ oders + automation
 2. Jobs 
 3. Steps
 4. Runner 
- 
+
+code--> test --> build --> Package --> push --> deploy --> verify 
+
 COMMANDS
 - name: Say Hello
  run: echo "Hello from CI" 
@@ -37,3 +39,32 @@ Inputs and parameters :-
     path: downloaded-jar/    # Save karne ka path
 
 Dependency and flow:-
+
+
+--------------------CD---------------------------------
+
+Continuous Deploynment:-Every successful build is automatically deployed to an environment without manual interventions
+
+How CI/CD talk to k8s???
+
+how kubectl know k8s cluster??
+kubeconfig (config file) ----- cluster information
+                 User Information & credentials
+                 Context Information (gives flexibility eg as a user today i want to connect to Aws cluser, next i want to conect to GCP/Asure ---> can switch clusters)
+                 Switching Env
+                 Automation
+                 Security
+command:-
+kubectl config view
+kubectl config current-context
+kubectl config use-context <name>
+
+When kubeconfg created??
+
+Docker Desktop:(local k8s)
+Automatically when we enable Kubernates in DD.
+
+AWS(EKS)
+when cluster created automatically- bts
+
+aws eks update-kubeconfig --name <Cluer_name> --region ap-south-1
